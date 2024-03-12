@@ -6,3 +6,6 @@ a) Sim, no código acima, depois da chamada fork (), o processo filho executa o 
 
 b) Serão criados 8 processos no total, nos quais se iniciam com o processo original, que começa a execução, a primeira chamada de fork(), duplicando o processo, assim como a segunda chamada de fork(), e por fim a terceira chamada de fork(), duplicando novamente o número de processos.
 
+# Terminal da AWS rodando o código feito no GitHub
+
+![image](https://github.com/guilhermepascucci/guilherme/assets/99357352/2b2022a9-61d0-40f5-bd03-10476b1b41c5)
