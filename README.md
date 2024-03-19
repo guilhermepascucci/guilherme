@@ -13,3 +13,14 @@ b) Serão criados 8 processos no total, nos quais se iniciam com o processo orig
 # Editor de texto com o código no terminal da AWS
 
 ![fotoTerminalAWS](https://github.com/guilhermepascucci/guilherme/assets/99357352/54ba2f9a-5da5-4966-a042-913a826e2c64)
+
+
+# Laboratório 03
+
+# Editor de texto da AWS com o código do GitHub
+![image](https://github.com/guilhermepascucci/guilherme/assets/99357352/f96a69e3-b1e2-4fda-95e1-84ea25929dc1)
+
+# Terminal da AWS rodando o código
+![image](https://github.com/guilhermepascucci/guilherme/assets/99357352/9825ab63-f851-4190-81df-b5ceb67bfe54)
+
+
