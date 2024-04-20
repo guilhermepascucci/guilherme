@@ -13,5 +13,10 @@ Resposta:
 Reposta:
 
 
-Foto Terminal AWS - Teste código utilizando Threads
+
+
+
+*Foto Terminal AWS - Teste código utilizando Threads*
+
+
 ![capturaAWS](https://github.com/guilhermepascucci/guilherme/assets/99357352/a9cdcbcd-ac66-40af-a66f-7e643b0685c4)
