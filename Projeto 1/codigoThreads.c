@@ -1,85 +1,124 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
-#include <unistd.h>
+#define MAX_PESSOAS 10000
 
-// Definindo a estrutura para armazenar os dados de cada pessoa
 typedef struct {
-    int arrival_time;
-    int direction;
-} Person;
+    int horarioChegada;
+    int direcao;
+} Passageiro;
 
-int last_time = 0;
-int esc_direction = -1; // Inicialmente a escada está parada.
-pthread_mutex_t lock; // Mutex para controle de acesso à variável last_time
+typedef struct {
+    Passageiro filaPrimaria[MAX_PESSOAS];
+    int tamanhoFilaPrimaria;
+    Passageiro filaSecundaria[MAX_PESSOAS];
+    int tamanhoFilaSecundaria;
+} ControleEscadaRolante;
 
-// Função que cada thread vai executar
-void *use_escalator(void *arg) {
-    Person *p = (Person *)arg;
+int tempoUltimaSaida = 0;
 
-    pthread_mutex_lock(&lock);
-    // Se a escada estiver parada ou se movendo na mesma direção.
-    if (esc_direction == -1 || esc_direction == p->direction) {
-        // Se a escada estiver parada ou se a próxima pessoa chegar após o último uso.
-        if (last_time <= p->arrival_time) {
-            last_time = p->arrival_time + 10; // Começa e atravessa
-        } else {
-            last_time += 10; // Já estava em movimento, apenas atravessa
-        }
+void* gerenciarEscadaRolante(void* args) {
+    ControleEscadaRolante* controle = (ControleEscadaRolante *) args;
+    Passageiro passageiroAtual;
+
+    if (controle->tamanhoFilaPrimaria == 0) {
+        passageiroAtual = controle->filaSecundaria[0];
+    } else if (controle->tamanhoFilaSecundaria == 0) {
+        passageiroAtual = controle->filaPrimaria[0];
     } else {
-        // Escada está se movendo na direção oposta.
-        // Se a próxima pessoa chegar após a escada ter parado e mudado de direção.
-        if (last_time < p->arrival_time) {
-            last_time = p->arrival_time; // A escada já estaria parada quando a pessoa chega
-        }
-        // Adiciona tempo para a escada parar se necessário e para atravessar.
-        last_time += 20;
+        passageiroAtual = controle->filaPrimaria[0].horarioChegada < controle->filaSecundaria[0].horarioChegada ? 
+                           controle->filaPrimaria[0] : controle->filaSecundaria[0];
     }
-    esc_direction = p->direction; // Atualiza a direção da escada
-    pthread_mutex_unlock(&lock);
 
-    pthread_exit(NULL);
+    int indicePrimario = 0, indiceSecundario = 0;
+
+    while (indicePrimario < controle->tamanhoFilaPrimaria || indiceSecundario < controle->tamanhoFilaSecundaria) {
+
+        if (passageiroAtual.direcao == 0) {
+            if ((indicePrimario < controle->tamanhoFilaPrimaria && (controle->filaPrimaria[indicePrimario].horarioChegada <= tempoUltimaSaida) || (controle->filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida && controle->filaPrimaria[indicePrimario].horarioChegada < controle->filaSecundaria[indiceSecundario].horarioChegada)) || indiceSecundario == controle->tamanhoFilaSecundaria) {
+                passageiroAtual = controle->filaPrimaria[indicePrimario];               
+                ++indicePrimario;   
+
+            } else if (controle->filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida || indicePrimario == controle->tamanhoFilaPrimaria) {
+                passageiroAtual = controle->filaSecundaria[indiceSecundario];
+                if (tempoUltimaSaida > passageiroAtual.horarioChegada) passageiroAtual.horarioChegada = tempoUltimaSaida;
+                ++indiceSecundario;
+
+                int i = indiceSecundario;
+                while (tempoUltimaSaida > controle->filaSecundaria[i].horarioChegada && i < controle->tamanhoFilaSecundaria) {
+                    controle->filaSecundaria[i].horarioChegada = tempoUltimaSaida;
+                    ++i;
+                }
+            } 
+                              
+        } else if (passageiroAtual.direcao == 1) {
+            if ((indiceSecundario < controle->tamanhoFilaSecundaria && controle->filaSecundaria[indiceSecundario].horarioChegada <= tempoUltimaSaida || (controle->filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida && controle->filaSecundaria[indiceSecundario].horarioChegada < controle->filaPrimaria[indicePrimario].horarioChegada)) || indicePrimario == controle->tamanhoFilaPrimaria) {
+                passageiroAtual = controle->filaSecundaria[indiceSecundario];      
+                ++indiceSecundario;
+
+            } else if (controle->filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida || indiceSecundario == controle->tamanhoFilaSecundaria) {
+                passageiroAtual = controle->filaPrimaria[indicePrimario];
+                if (tempoUltimaSaida > passageiroAtual.horarioChegada) passageiroAtual.horarioChegada = tempoUltimaSaida;
+                ++indicePrimario;
+
+                int i = indicePrimario;
+                while (tempoUltimaSaida > controle->filaPrimaria[i].horarioChegada && i < controle->tamanhoFilaPrimaria) {
+                    controle->filaPrimaria[i].horarioChegada = tempoUltimaSaida;
+                    ++i;
+                }                
+            }
+        }   
+        tempoUltimaSaida = passageiroAtual.horarioChegada + 10;
+    }
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
-    // argc é a contagem de argumentos, argv é o array de argumentos
-    if (argc != 2) {
-        fprintf(stderr, "input\n", argv[0]);
+    int indiceArquivo;
+    printf("Entre com o número do arquivo (1-58): ");
+    scanf("%d", &indiceArquivo);
+
+    if (indiceArquivo < 1 || indiceArquivo > 58) {
+        fprintf(stderr, "Número do arquivo inválido. Deve ser entre 1 e 58.\n");
         return 1;
     }
 
-    FILE *file = fopen(argv[1], "r");
-    if (file == NULL) {
-        perror("Error opening file");
+    char nomeArquivo[20];
+    sprintf(nomeArquivo, "E_%d", indiceArquivo);
+
+    FILE *arquivo = fopen(nomeArquivo, "r");
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo");
         return 1;
     }
 
-    int N;
-    fscanf(file, "%d", &N);
+    int n;
+    fscanf(arquivo, "%d", &n);
 
-    pthread_t threads[N];
-    Person people[N];
-    pthread_mutex_init(&lock, NULL);
+    Passageiro primeiraLinha[MAX_PESSOAS];
+    Passageiro segundaLinha[MAX_PESSOAS];
+    int tamanhoPrimeiraLinha = 0, tamanhoSegundaLinha = 0;
+    Passageiro individuo;
 
-    for (int i = 0; i < N; i++) {
-        fscanf(file, "%d %d", &people[i].arrival_time, &people[i].direction);
+    for (int i = 0; i < n; ++i) {
+        fscanf(arquivo, "%d %d", &individuo.horarioChegada, &individuo.direcao);
+        if (individuo.direcao == 0) primeiraLinha[tamanhoPrimeiraLinha++] = individuo;
+        else segundaLinha[tamanhoSegundaLinha++] = individuo;
     }
 
-    fclose(file); // Fechar o arquivo após ler os dados
+    fclose(arquivo);
 
-    // Criar uma thread para cada pessoa
-    for (int i = 0; i < N; i++) {
-        pthread_create(&threads[i], NULL, use_escalator, (void *)&people[i]);
-    }
+    ControleEscadaRolante argumentosEscada;
+    for (int i = 0; i < tamanhoPrimeiraLinha; i++) argumentosEscada.filaPrimaria[i] = primeiraLinha[i];
+    argumentosEscada.tamanhoFilaPrimaria = tamanhoPrimeiraLinha;
+    for (int i = 0; i < tamanhoSegundaLinha; i++) argumentosEscada.filaSecundaria[i] = segundaLinha[i];
+    argumentosEscada.tamanhoFilaSecundaria = tamanhoSegundaLinha;
 
-    // Esperar todas as threads terminarem
-    for (int i = 0; i < N; i++) {
-        pthread_join(threads[i], NULL);
-    }
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, gerenciarEscadaRolante, (void *) &argumentosEscada);
+    pthread_join(thread_id, NULL);
 
-    printf("%d\n", last_time);
+    printf("Tempo da última saída: %d\n", tempoUltimaSaida);
 
-    pthread_mutex_destroy(&lock);
     return 0;
 }
 
