@@ -15,54 +15,54 @@ typedef struct {
 } ControleEscadaRolante;
 
 int tempoUltimaSaida = 0;
+ControleEscadaRolante controle;
 
-void* gerenciarEscadaRolante(void* args) {
-    ControleEscadaRolante* controle = (ControleEscadaRolante *) args;
+void* gerenciarEscadaRolante() {
     Passageiro passageiroAtual;
 
-    if (controle->tamanhoFilaPrimaria == 0) {
-        passageiroAtual = controle->filaSecundaria[0];
-    } else if (controle->tamanhoFilaSecundaria == 0) {
-        passageiroAtual = controle->filaPrimaria[0];
+    if (controle.tamanhoFilaPrimaria == 0) {
+        passageiroAtual = controle.filaSecundaria[0];
+    } else if (controle.tamanhoFilaSecundaria == 0) {
+        passageiroAtual = controle.filaPrimaria[0];
     } else {
-        passageiroAtual = controle->filaPrimaria[0].horarioChegada < controle->filaSecundaria[0].horarioChegada ? 
-                           controle->filaPrimaria[0] : controle->filaSecundaria[0];
+        passageiroAtual = controle.filaPrimaria[0].horarioChegada < controle.filaSecundaria[0].horarioChegada ? 
+                           controle.filaPrimaria[0] : controle.filaSecundaria[0];
     }
 
     int indicePrimario = 0, indiceSecundario = 0;
 
-    while (indicePrimario < controle->tamanhoFilaPrimaria || indiceSecundario < controle->tamanhoFilaSecundaria) {
+    while (indicePrimario < controle.tamanhoFilaPrimaria || indiceSecundario < controle.tamanhoFilaSecundaria) {
 
         if (passageiroAtual.direcao == 0) {
-            if ((indicePrimario < controle->tamanhoFilaPrimaria && (controle->filaPrimaria[indicePrimario].horarioChegada <= tempoUltimaSaida) || (controle->filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida && controle->filaPrimaria[indicePrimario].horarioChegada < controle->filaSecundaria[indiceSecundario].horarioChegada)) || indiceSecundario == controle->tamanhoFilaSecundaria) {
-                passageiroAtual = controle->filaPrimaria[indicePrimario];               
+            if ((indicePrimario < controle.tamanhoFilaPrimaria && (controle.filaPrimaria[indicePrimario].horarioChegada <= tempoUltimaSaida) || (controle.filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida && controle.filaPrimaria[indicePrimario].horarioChegada < controle.filaSecundaria[indiceSecundario].horarioChegada)) || indiceSecundario == controle.tamanhoFilaSecundaria) {
+                passageiroAtual = controle.filaPrimaria[indicePrimario];               
                 ++indicePrimario;   
 
-            } else if (controle->filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida || indicePrimario == controle->tamanhoFilaPrimaria) {
-                passageiroAtual = controle->filaSecundaria[indiceSecundario];
+            } else if (controle.filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida || indicePrimario == controle.tamanhoFilaPrimaria) {
+                passageiroAtual = controle.filaSecundaria[indiceSecundario];
                 if (tempoUltimaSaida > passageiroAtual.horarioChegada) passageiroAtual.horarioChegada = tempoUltimaSaida;
                 ++indiceSecundario;
 
                 int i = indiceSecundario;
-                while (tempoUltimaSaida > controle->filaSecundaria[i].horarioChegada && i < controle->tamanhoFilaSecundaria) {
-                    controle->filaSecundaria[i].horarioChegada = tempoUltimaSaida;
+                while (tempoUltimaSaida > controle.filaSecundaria[i].horarioChegada && i < controle.tamanhoFilaSecundaria) {
+                    controle.filaSecundaria[i].horarioChegada = tempoUltimaSaida;
                     ++i;
                 }
             } 
-                              
+
         } else if (passageiroAtual.direcao == 1) {
-            if ((indiceSecundario < controle->tamanhoFilaSecundaria && controle->filaSecundaria[indiceSecundario].horarioChegada <= tempoUltimaSaida || (controle->filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida && controle->filaSecundaria[indiceSecundario].horarioChegada < controle->filaPrimaria[indicePrimario].horarioChegada)) || indicePrimario == controle->tamanhoFilaPrimaria) {
-                passageiroAtual = controle->filaSecundaria[indiceSecundario];      
+            if ((indiceSecundario < controle.tamanhoFilaSecundaria && controle.filaSecundaria[indiceSecundario].horarioChegada <= tempoUltimaSaida || (controle.filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida && controle.filaSecundaria[indiceSecundario].horarioChegada < controle.filaPrimaria[indicePrimario].horarioChegada)) || indicePrimario == controle.tamanhoFilaPrimaria) {
+                passageiroAtual = controle.filaSecundaria[indiceSecundario];      
                 ++indiceSecundario;
 
-            } else if (controle->filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida || indiceSecundario == controle->tamanhoFilaSecundaria) {
-                passageiroAtual = controle->filaPrimaria[indicePrimario];
+            } else if (controle.filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida || indiceSecundario == controle.tamanhoFilaSecundaria) {
+                passageiroAtual = controle.filaPrimaria[indicePrimario];
                 if (tempoUltimaSaida > passageiroAtual.horarioChegada) passageiroAtual.horarioChegada = tempoUltimaSaida;
                 ++indicePrimario;
 
                 int i = indicePrimario;
-                while (tempoUltimaSaida > controle->filaPrimaria[i].horarioChegada && i < controle->tamanhoFilaPrimaria) {
-                    controle->filaPrimaria[i].horarioChegada = tempoUltimaSaida;
+                while (tempoUltimaSaida > controle.filaPrimaria[i].horarioChegada && i < controle.tamanhoFilaPrimaria) {
+                    controle.filaPrimaria[i].horarioChegada = tempoUltimaSaida;
                     ++i;
                 }                
             }
@@ -114,7 +114,7 @@ int main() {
     argumentosEscada.tamanhoFilaSecundaria = tamanhoSegundaLinha;
 
     pthread_t thread_id;
-    pthread_create(&thread_id, NULL, gerenciarEscadaRolante, (void *) &argumentosEscada);
+    pthread_create(&thread_id, NULL, gerenciarEscadaRolante, NULL);
     pthread_join(thread_id, NULL);
 
     printf("Tempo da última saída: %d\n", tempoUltimaSaida);
