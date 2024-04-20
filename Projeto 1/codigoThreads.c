@@ -72,7 +72,7 @@ void* gerenciarEscadaRolante(void* args) {
     return NULL;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     int indiceArquivo;
     printf("Entre com o número do arquivo (1-58): ");
     scanf("%d", &indiceArquivo);
