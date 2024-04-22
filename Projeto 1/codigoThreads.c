@@ -2,8 +2,6 @@
 #include <pthread.h>
 #define MAX_PESSOAS 10000
 
-int tempoUltimaSaida = 0;
-
 typedef struct {
     int horarioChegada;
     int direcao;
@@ -16,11 +14,12 @@ typedef struct {
     int tamanhoFilaSecundaria;
 } ControleEscadaRolante;
 
+int tempoUltimaSaida = 0;
+
 void* gerenciarEscadaRolante(void* args) {
     ControleEscadaRolante* controle = (ControleEscadaRolante *) args;
     Passageiro passageiroAtual;
 
-    // Definindo o primeiro valor;
     if (controle->tamanhoFilaPrimaria == 0) {
         passageiroAtual = controle->filaSecundaria[0];
     } else if (controle->tamanhoFilaSecundaria == 0) {
@@ -34,7 +33,6 @@ void* gerenciarEscadaRolante(void* args) {
 
     while (indicePrimario < controle->tamanhoFilaPrimaria || indiceSecundario < controle->tamanhoFilaSecundaria) {
 
-        // Indo da esquerda para a direita
         if (passageiroAtual.direcao == 0) {
             if ((indicePrimario < controle->tamanhoFilaPrimaria && (controle->filaPrimaria[indicePrimario].horarioChegada <= tempoUltimaSaida) || (controle->filaPrimaria[indicePrimario].horarioChegada > tempoUltimaSaida && controle->filaPrimaria[indicePrimario].horarioChegada < controle->filaSecundaria[indiceSecundario].horarioChegada)) || indiceSecundario == controle->tamanhoFilaSecundaria) {
                 passageiroAtual = controle->filaPrimaria[indicePrimario];               
@@ -51,7 +49,7 @@ void* gerenciarEscadaRolante(void* args) {
                     ++i;
                 }
             } 
-        // Indo da direita para a esquerda                               
+                               
         } else if (passageiroAtual.direcao == 1) {
             if ((indiceSecundario < controle->tamanhoFilaSecundaria && controle->filaSecundaria[indiceSecundario].horarioChegada <= tempoUltimaSaida || (controle->filaSecundaria[indiceSecundario].horarioChegada > tempoUltimaSaida && controle->filaSecundaria[indiceSecundario].horarioChegada < controle->filaPrimaria[indicePrimario].horarioChegada)) || indicePrimario == controle->tamanhoFilaPrimaria) {
                 passageiroAtual = controle->filaSecundaria[indiceSecundario];      
@@ -109,7 +107,6 @@ int main(int argc, char *argv[]) {
 
     fclose(arquivo);
 
-    // Configurando os argumentos para a thread
     ControleEscadaRolante argumentosEscada;
     for (int i = 0; i < tamanhoPrimeiraLinha; i++) argumentosEscada.filaPrimaria[i] = primeiraLinha[i];
     argumentosEscada.tamanhoFilaPrimaria = tamanhoPrimeiraLinha;
