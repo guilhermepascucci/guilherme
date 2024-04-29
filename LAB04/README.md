@@ -6,4 +6,4 @@ Código executado no terminal AWS:
 
 Explicação geral do código feito:
 
-As constantes M e N são definidas para especificar as dimensões da matriz A e do vetor x. Contendo a estrutura chamada thread_data é usada para armazenar o índice da linha que cada thread deve processar. Cada thread executa esta função, que calcula o produto da linha especificada da matriz A com o vetor x e armazena o resultado em y. E na main, inicializa a matriz e o vetor com valores, cria uma thread para cada linha da matriz, espera pelo término das threads e imprime o vetor resultado y.
+As constantes M e N são definidas para especificar as dimensões da matriz A e do vetor x. Contendo a estrutura chamada thread_data que é usada para armazenar o índice da linha que cada thread deve processar. Cada thread executa a função 'multiply', que calcula o produto da linha especificada da matriz A com o vetor x e armazena o resultado em y. E na main, inicializa a matriz e o vetor com valores, cria uma thread para cada linha da matriz, espera pelo término das threads e imprime o vetor resultado y.
